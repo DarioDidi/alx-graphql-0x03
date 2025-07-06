@@ -1,30 +1,35 @@
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import React, { ErrorInfo, ReactNode } from "react";
+import * as Sentry from '@sentry/react';
 
 interface State {
-	hasError: boolean
+	hasError: boolean;
 }
 
 interface ErrorBoundaryProps {
 	children: ReactNode;
 }
 
-class ErroBoundary extends React.Component<ErrorBoundaryProps, State> {
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false };
 	}
 
-	static getDerivedStateFromError(error: Error): state {
+	static getDerivedStateFromError(error): State {
+		console.log("\nSETTING ERROR\n")
 		return { hasError: true };
 	}
 
-	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-		console.log({ error, errorInfo })
+	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		console.log("\n\nCAUGH ERRORR!!\n\n");
+		Sentry.captureException(error/*, { extra: errorInfo }*/);
 	}
 
 	render() {
+		console.log("IN RENDER, error:?", this.state.hasError)
 		if (this.state.hasError) {
+			console.log("FOUNDD ERROR")
 			return (
 				<div>
 					<h2>Oops, there is an error!</h2>
@@ -34,6 +39,8 @@ class ErroBoundary extends React.Component<ErrorBoundaryProps, State> {
 				</div>
 			);
 		}
+
+
 		return this.props.children;
 	}
 }

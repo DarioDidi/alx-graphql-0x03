@@ -1,12 +1,19 @@
-import "@/styles/globals.css";
+import ErrorBoundary from '@/components/ErrorBoundary';
 import type { AppProps } from "next/app";
-import { ApolloProvider } from "@apollo/client";
-import client from "@/graphql/apolloClient";
+import * as Sentry from '@sentry/nextjs';
 
-export default function App({ Component, pageProps }: AppProps) {
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  environment: process.env.NODE_ENV,
+})
+
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ApolloProvider client={client}>
+    <ErrorBoundary>
       <Component {...pageProps} />
-    </ApolloProvider>
+    </ErrorBoundary>
   );
 }
+
+export default MyApp;
